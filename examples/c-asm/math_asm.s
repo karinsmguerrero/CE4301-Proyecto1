@@ -7,11 +7,11 @@
 .globl sum_to_n
 sum_to_n:
     # Save return address
-    addi sp, sp, -16
-    sw ra, 12(sp)
-    sw s0, 8(sp)
-    sw s1, 4(sp)
-    sw s2, 0(sp)
+    addi sp, sp, -16    # make space in the stack (4 words)
+    sw ra, 12(sp)       # save ra on stack
+    sw s0, 8(sp)        # save s0 on stack
+    sw s1, 4(sp)        # save s1 on stack
+    sw s2, 0(sp)        # save s2 on stack
     
     # Initialize variables
     mv s0, a0      # s0 = n (input parameter)

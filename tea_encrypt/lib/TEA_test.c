@@ -8,7 +8,10 @@ void to_ascii(const char *input, uint32_t *value) {
         char c = input[i];
         if (c == '\0') break;  // string end
 
+        
         if (i < 4) {
+            // Empaquetar los caracteres ASCII en un uint32_t
+            // La máscara & 0xFF asegura que solo se guarda 1 byte por caracter.
             value[0] |= ((uint32_t)c & 0xFF) << (8 * i);
         } else {
             value[1] |= ((uint32_t)c & 0xFF) << (8 * (i - 4));
