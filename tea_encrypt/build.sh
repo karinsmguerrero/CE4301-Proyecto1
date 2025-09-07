@@ -50,7 +50,7 @@ riscv64-unknown-elf-gcc \
     -o build/TEA.o
 
 if [ $? -ne 0 ]; then
-    echo "Math assembly compilation failed"
+    echo "TEA assembly compilation failed"
     exit 1
 fi
 
@@ -69,8 +69,8 @@ riscv64-unknown-elf-gcc \
     -o tea.elf
 
 if [ $? -eq 0 ]; then
-    echo "Build successful: example.elf created"
-    echo "Object files: example.o, math_asm.o"
+    echo "Build successful: tea.elf created"
+    echo "Object files: main.o, TEA.o"
 else
     echo "Linking failed"
     exit 1

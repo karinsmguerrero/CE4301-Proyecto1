@@ -1,4 +1,4 @@
-#include "../include/TEA.h"
+#include "../include/TEA_test.h"
 
 void to_ascii(const char *input, uint32_t *value) {
     value[0] = 0;

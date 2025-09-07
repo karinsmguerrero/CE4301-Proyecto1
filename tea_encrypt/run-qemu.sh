@@ -2,7 +2,7 @@
 
 # Run QEMU with GDB server for C+assembly example
 echo "Starting QEMU with GDB server on port 1234..."
-echo "In another terminal, run: gdb-multiarch example.elf"
+echo "In another terminal, run: gdb-multiarch tea.elf"
 echo "Then in GDB: target remote :1234"
 echo ""
 echo "Useful GDB commands for this example:"
