@@ -97,6 +97,10 @@ int main()
     int n = 4;
     int res = tea_encrypt(value, key, result);
 
+    if (res == 0){
+        print_string("Sucesss");
+    }
+
     print_string("Result of encryption:\n");
     print_number(result[0]);
     print_number(result[1]);
