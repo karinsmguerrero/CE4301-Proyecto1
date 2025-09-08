@@ -1,9 +1,6 @@
 .section .text
 .globl tea_encrypt
 tea_encrypt:
-    # Save return address
-    addi sp, sp, -4     # make space in the stack (4 words)
-    sw ra, 0(sp)        # save ra on stack
 
     # Initialize variables
     lw s0, 0(a0)        # s0 = value[0] (input parameter)
@@ -46,11 +43,6 @@ encrypt_loop:
     bne t1, zero, encrypt_loop
 
 return_encrypt:
-    sw s0, 0(a2)           # result[0] = v0
-    sw s1, 4(a2)           # result[1] = v1
-    mv a0, zero
-
-    # Restore registers and return
-    lw ra, 0(sp)
-    addi sp, sp, 4
+    sw s0, 0(a0)
+    sw s1, 4(a0)
     ret

@@ -17,30 +17,23 @@ void print_string(const char *str)
     }
 }
 
-void print_number(int num)
+void print_number(uint32_t num)
 {
+    char buffer[11];
+    int i = 0;
+
     if (num == 0)
     {
         print_char('0');
         return;
     }
 
-    if (num < 0)
-    {
-        print_char('-');
-        num = -num;
-    }
-
-    char buffer[10];
-    int i = 0;
-
-    while (num > 0)
+    while (num > 0 && i < 10)
     {
         buffer[i++] = '0' + (num % 10);
         num /= 10;
     }
 
-    // Print digits in reverse order
     while (i > 0)
     {
         print_char(buffer[--i]);
@@ -90,20 +83,17 @@ int main()
 
     char output[9];
     uint32_t value[2];
-    uint32_t result[2];
-    // Extract ascii encodigin for string to be encrypted
+
+    // Extract ascii encoding for string to be encrypted
     to_ascii(input, value);
 
-    int n = 4;
-    int res = tea_encrypt(value, key, result);
+    tea_encrypt(value, key);
 
-    if (res == 0){
-        print_string("Sucesss");
-    }
-
-    print_string("Result of encryption:\n");
-    print_number(result[0]);
-    print_number(result[1]);
+    print_string("Encrypted result:\n");
+    print_number(value[0]);
+    print_char('\n');
+    print_number(value[1]);
+    print_char('\n');
 
     return 0;
 }
