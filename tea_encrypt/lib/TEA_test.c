@@ -70,16 +70,16 @@ void tea_decrypt(uint32_t v[2], const uint32_t key[4])
         to_ascii(input, value);
 
         printf("Valor original: \n");
-        printf("%u \n", value[0]);
-        printf("%u \n", value[1]);
+        printf("%x \n", value[0]);
+        printf("%x \n", value[1]);
         tea_encrypt(&value, &key);
         printf("Valor encriptado: \n");
-        printf("%u \n", value[0]);
-        printf("%u \n", value[1]);
+        printf("%x \n", value[0]);
+        printf("%x \n", value[1]);
         tea_decrypt(&value, &key);
         printf("Valor desencriptado: \n");
-        printf("%u \n", value[0]);
-        printf("%u \n", value[1]);
+        printf("%x \n", value[0]);
+        printf("%x \n", value[1]);
 
         from_ascii(&output, value);
         printf("%s \n", output);

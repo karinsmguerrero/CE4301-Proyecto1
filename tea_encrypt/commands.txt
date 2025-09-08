@@ -11,30 +11,7 @@ target remote :1234
 break _start
 break main
 break tea_encrypt
+break return_encrypt
 layout asm
 layout regs
 continue
-
-
-
-
-.section .text
-.globl tea_encrypt
-tea_encrypt:
-    # Initialize variables
-    mv s0, a0           # s0 = value [address] (input parameter)
-    li t1, 1            # i = 1
-    slli t2, t1, 2      # t2 = i * 4 (offset for 2rd element)
-    add t3, s0, t2      # t3 = address of myArray[1]
-    lw a0, 0(t3)        # a0 = myArray[1] (loads the value 30)
-    ret
-
-
-#uint32_t v0 = v[0], v1 = v[1];
-#uint32_t sum = 0;
-
-
-     mv s0, a0           # s0 = value [address] (input parameter)
-    lw s1, 4(s0)        # a0 = value[1] (loads the value 30)  
-    mv a0, s1
-    ret

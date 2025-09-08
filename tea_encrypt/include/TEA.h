@@ -11,6 +11,6 @@ void to_ascii(const char *input, uint32_t *value);
 void from_ascii(char *output, uint32_t *value);
 
 // Assembly function declaration
-extern int tea_encrypt(uint32_t value[2]);
+extern int tea_encrypt(uint32_t value[2], uint32_t key[4], uint32_t result[2]);
 
 #endif

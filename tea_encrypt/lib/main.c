@@ -90,17 +90,16 @@ int main()
 
     char output[9];
     uint32_t value[2];
+    uint32_t result[2];
     // Extract ascii encodigin for string to be encrypted
     to_ascii(input, value);
 
     int n = 4;
-    int result = tea_encrypt(value);
+    int res = tea_encrypt(value, key, result);
 
-    print_string("Result:\n");
-    print_number(result);
+    print_string("Result of encryption:\n");
+    print_number(result[0]);
+    print_number(result[1]);
 
-        // Infinite loop to keep program running
-    while (1) {
-        __asm__ volatile ("nop");
-    }
+    return 0;
 }
