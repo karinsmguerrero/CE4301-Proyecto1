@@ -77,49 +77,67 @@ void from_ascii(char *output, uint32_t *value)
     output[8] = '\0'; // terminador nulo
 }
 
+void encrypt_message(char *input, uint32_t* key, uint32_t* encrypted)
+{
+    uint32_t value[2];
+    char block[BLOCK_SIZE + 1];
+    int i = 0, j = 0;
 
+    while (input[i] != '\0')
+    {
+        // Copiar 8 chars al bloque
+        for (j = 0; j < BLOCK_SIZE; j++)
+        {
+            if (input[i] != '\0'){
+                block[j] = input[i];
+                i++;
+            }
+            else
+                block[j] = '\0'; // padding simple
+        }
+        block[BLOCK_SIZE] = '\0';
+
+        // Convert from string to uint32_t[2]
+        to_ascii(block, value);
+
+        // Encriptar
+        tea_encrypt(value, key);
+
+        // Guardar resultado en "encrypted"
+        encrypted[i - BLOCK_SIZE] = value[0];
+        encrypted[i - BLOCK_SIZE + 1] = value[1];
+
+        //from_ascii(&encrypted[i - BLOCK_SIZE], value);
+    }
+    encrypted[i] = '\0';
+}
 
 int main()
 {
     print_string("Testing tea_encrypt assembly function:\n");
 
+    uint32_t key[4] = {0x12345678, 0x9ABCDEF0, 0xFEDCBA98, 0x76543210};
+    char input[] = "Mensaje de prueba para TEA";
 
-    char output[9];
-    uint32_t value[2];
+    // uint32_t key[4] = {0x12345678, 0x9ABCDEF0, 0xFEDCBA98, 0x76543210};
+    // char input[] = "HOLA1234";
+    
+    uint32_t encrypted_message[MAX_OUTPUT];
+    char decrypted_message[MAX_OUTPUT];
 
-    print_string("Value to be encrypted: ");
+    print_string("Original input: ");
     print_string(input);
-    print_string("\n");
-
-    // Convert string to ascii
-    to_ascii(input, value);
-
-    print_string("ASCII coded:\n");
-    print_number(value[0]);
-    print_char('\n');
-    print_number(value[1]);
     print_char('\n');
 
-    tea_encrypt(value, key);
+    encrypt_message(input, key, encrypted_message);
 
-    print_string("Encrypted result:\n");
-    print_number(value[0]);
-    print_char('\n');
-    print_number(value[1]);
-    print_char('\n');
+    print_string("Encrypted text:\n");
+    for(int i = 0; i < 4; i++){
+        print_number(encrypted_message[i]);
+        print_char('\n');
+    }
 
-    tea_decrypt(value, key);
 
-    print_string("Decrypted result:\n");
-    print_number(value[0]);
-    print_char('\n');
-    print_number(value[1]);
-    print_char('\n');
-
-    from_ascii(output, value);
-
-    print_string("ASCII decoded:\n");
-    print_string(output);
 
     return 0;
 }
