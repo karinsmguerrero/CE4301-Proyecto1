@@ -6,7 +6,7 @@
 
 const int DELTA = 0x9e3779b9;
 const uint32_t key[4] = {0x12345678, 0x9ABCDEF0, 0xFEDCBA98, 0x76543210};
-const char input[] = "HOLA1234";
+char input[] = "Mensaje de prueba para TEA";
 
 void to_ascii(const char *input, uint32_t *value);
 void from_ascii(char *output, uint32_t *value);

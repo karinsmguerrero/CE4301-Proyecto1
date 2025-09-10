@@ -15,3 +15,15 @@ break return_encrypt
 layout asm
 layout regs
 continue
+
+
+Valor original: 
+414c4f48 
+34333231 
+Valor encriptado: 
+da21c31f 
+5e98b1fd 
+Valor desencriptado: 
+414c4f48 
+34333231 
+HOLA1234 

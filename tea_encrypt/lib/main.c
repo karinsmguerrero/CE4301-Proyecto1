@@ -77,15 +77,28 @@ void from_ascii(char *output, uint32_t *value)
     output[8] = '\0'; // terminador nulo
 }
 
+
+
 int main()
 {
     print_string("Testing tea_encrypt assembly function:\n");
 
+
     char output[9];
     uint32_t value[2];
 
-    // Extract ascii encoding for string to be encrypted
+    print_string("Value to be encrypted: ");
+    print_string(input);
+    print_string("\n");
+
+    // Convert string to ascii
     to_ascii(input, value);
+
+    print_string("ASCII coded:\n");
+    print_number(value[0]);
+    print_char('\n');
+    print_number(value[1]);
+    print_char('\n');
 
     tea_encrypt(value, key);
 
@@ -94,6 +107,19 @@ int main()
     print_char('\n');
     print_number(value[1]);
     print_char('\n');
+
+    tea_decrypt(value, key);
+
+    print_string("Decrypted result:\n");
+    print_number(value[0]);
+    print_char('\n');
+    print_number(value[1]);
+    print_char('\n');
+
+    from_ascii(output, value);
+
+    print_string("ASCII decoded:\n");
+    print_string(output);
 
     return 0;
 }
