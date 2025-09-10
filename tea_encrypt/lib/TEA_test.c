@@ -79,17 +79,14 @@ int get_message_length(char* message){
     return i;
 }
 
-void encrypt_message(char *input, uint32_t* key, uint32_t* encrypted)
-{
+void encrypt_message(const char *input, uint32_t* key, char *encrypted) {
     uint32_t value[2];
-    char block[BLOCK_SIZE];
+    char block[BLOCK_SIZE + 1];
     int i = 0, j = 0;
 
-    while (input[i] != '\0')
-    {
+    while (input[i] != '\0') {
         // Copiar 8 chars al bloque
-        for (j = 0; j < BLOCK_SIZE; j++)
-        {
+        for (j = 0; j < BLOCK_SIZE; j++) {
             if (input[i] != '\0'){
                 block[j] = input[i];
                 i++;
@@ -97,29 +94,26 @@ void encrypt_message(char *input, uint32_t* key, uint32_t* encrypted)
             else
                 block[j] = '\0'; // padding simple
         }
+        block[BLOCK_SIZE] = '\0';
 
-        // Convert from string to uint32_t[2]
+        // Convertir a uint32_t[2]
         to_ascii(block, value);
 
         // Encriptar
         tea_encrypt(value, key);
 
         // Guardar resultado en "encrypted"
-        encrypted[i - BLOCK_SIZE] = value[0];
-        encrypted[i - BLOCK_SIZE + 1] = value[1];
-
-        //from_ascii(&encrypted[i - BLOCK_SIZE], value);
+        from_ascii(&encrypted[i - BLOCK_SIZE], value);
     }
     encrypted[i] = '\0';
 }
 
-void decrypt_message(uint32_t *encrypted, uint32_t* key, char *decrypted) {
+void decrypt_message(const char *encrypted, uint32_t* key,  char *decrypted) {
     uint32_t value[2];
-    uint32_t block[BLOCK_SIZE];
+    char block[BLOCK_SIZE + 1];
     int i = 0, j = 0;
 
     while (encrypted[i] != '\0') {
-        printf("In while");
         // Copiar 8 chars al bloque
         for (j = 0; j < BLOCK_SIZE; j++) {
             if (encrypted[i] != '\0'){
@@ -127,15 +121,18 @@ void decrypt_message(uint32_t *encrypted, uint32_t* key, char *decrypted) {
                 i++;
             }
             else
-                block[j] = 0;
+                block[j] = '\0';
         }
+        block[BLOCK_SIZE] = '\0';
 
+        // Convertir a uint32_t[2]
+        to_ascii(block, value);
 
         // Desencriptar
-        tea_decrypt(block, key);
+        tea_decrypt(value, key);
 
         // Guardar resultado en "decrypted"
-        from_ascii(&decrypted[i - BLOCK_SIZE], block);
+        from_ascii(&decrypted[i - BLOCK_SIZE], value);
     }
     decrypted[i] = '\0';
 }
@@ -150,19 +147,25 @@ int main()
 
     // uint32_t key[4] = {0x12345678, 0x9ABCDEF0, 0xFEDCBA98, 0x76543210};
     // char input[] = "HOLA1234";
-    
-    uint32_t encrypted_message[MAX_OUTPUT];
-    char decrypted_message[MAX_OUTPUT];
 
-    encrypt_message(input, key, encrypted_message);
-    int i = 0;
-    while(encrypted_message[i] != '\0'){
-    printf("%u \n", encrypted_message[i]);
-    i++;
-    }
+    char encrypted[MAX_OUTPUT];
+    char decrypted[MAX_OUTPUT];
 
-    decrypt_message(encrypted_message, key, decrypted_message);
-    printf("Mensaje desencriptado: %s \n", decrypted_message);
+    printf("Original input: ");
+    printf("%s \n", input);
+
+
+    encrypt_message(input, key, encrypted);
+
+    printf("Encrypted text:\n");
+    printf("%s \n",encrypted);
+
+    decrypt_message(encrypted, key, decrypted);
+
+    printf("Decrypted text:\n");
+    printf("%s \n",decrypted);
+
+    return 0;
 
     /*char output[9];
     uint32_t value[2];
@@ -181,7 +184,7 @@ int main()
     printf("%x \n", value[1]);
 
     from_ascii(output, value);
-    printf("%s \n", output);*/
+    printf("%s \n", output);
 
-    return 0;
+    return 0;*/
 }
