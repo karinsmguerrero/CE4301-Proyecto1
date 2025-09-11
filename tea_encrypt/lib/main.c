@@ -97,7 +97,7 @@ void print_hex(uint32_t *data, int nblocks)
     print_char('\n');
 }
 
-// Empaqueta hasta 8 chars en 2 × uint32_t
+// Converts string to 2 uint32_t arrays
 void to_block(char *input, uint32_t *value) {
     value[0] = 0; value[1] = 0;
     for (int i = 0; i < 8; i++) {
@@ -109,7 +109,7 @@ void to_block(char *input, uint32_t *value) {
             value[1] |= ((uint32_t)c & 0xFF) << (8 * (i - 4));
     }
 }
-// Desempaqueta 2 × uint32_t en 8 chars
+// Converts uint32_t arrays to string
 void from_block(char *output, uint32_t *value)
 {
     for (int i = 0; i < 4; i++)
@@ -119,7 +119,7 @@ void from_block(char *output, uint32_t *value)
     output[8] = '\0';
 }
 
-// Cifra todo el mensaje en bloques de 64 bits
+// Encrypts message into 64 bits 
 void encrypt_message(char *input, int nblocks, uint32_t *key, uint32_t *encrypted)
 {
     for (int b = 0; b < nblocks; b++)
