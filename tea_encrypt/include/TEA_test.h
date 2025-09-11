@@ -10,9 +10,6 @@ const int DELTA = 0x9e3779b9;
 #define MAX_OUTPUT 256 // ajustar según longitud máxima de input
 #define MAX_BLOCKS 64      // máximo de bloques procesados
 
-void to_ascii(const char *input, uint32_t *value);
-void from_ascii(char *output, uint32_t *value);
-
 void tea_encrypt(uint32_t v[2], const uint32_t key[4]);
 void tea_decrypt(uint32_t v[2], const uint32_t key[4]);
 
