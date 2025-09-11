@@ -40,104 +40,163 @@ void print_number(uint32_t num)
     }
 }
 
-void to_ascii(const char *input, uint32_t *value)
+int get_message_length(char *message)
 {
-    value[0] = 0;
-    value[1] = 0;
-
-    for (int i = 0; i < 8; i++)
+    int i = 0;
+    char c = message[i];
+    while (c != '\0')
     {
-        char c = input[i];
-        if (c == '\0')
-            break; // string end
+        i++;
+        c = message[i];
+    }
+    return i;
+}
 
-        if (i < 4)
+void decToHex(uint32_t decimalNum)
+{
+    char hexDigits[8]; // Array to store hexadecimal digits
+    int i = 0;
+
+    // Handle the case of 0 separately
+    if (decimalNum == 0)
+    {
+        print_string("In decimal == 0 \n");
+        print_string("0\n");
+        return;
+    }
+
+    while (decimalNum > 0)
+    {
+        print_string("In while \n");
+        int remainder = decimalNum % 16;
+
+        if (remainder < 10)
         {
-            // Empaquetar los caracteres ASCII en un uint32_t
-            // La máscara & 0xFF asegura que solo se guarda 1 byte por caracter.
-            value[0] |= ((uint32_t)c & 0xFF) << (8 * i);
+            hexDigits[i] = remainder + '0'; // Convert 0-9 to character '0'-'9'
         }
         else
         {
+            hexDigits[i] = remainder + 'A' - 10; // Convert 10-15 to 'A'-'F'
+        }
+        i++;
+        decimalNum /= 16;
+    }
+
+    // Print the hexadecimal digits in reverse order
+    for (int j = i - 1; j >= 0; j--)
+    {
+        print_string("In for \n");
+        print_char(hexDigits[j]);
+    }
+    print_char(' ');
+}
+
+void print_hex(const uint32_t *data, int nblocks)
+{
+    for (int i = 0; i < nblocks * 2; i++)
+    {
+        decToHex(data[i]);
+    }
+    print_char('\n');
+}
+
+// Empaqueta hasta 8 chars en 2 × uint32_t
+static void to_block(const char *input, uint32_t *value) {
+    print_string("In to_block \n");
+    value[0] = 0; value[1] = 0;
+    for (int i = 0; i < 8; i++) {
+        char c = input[i];
+        if (c == '\0') break;
+        if (i < 4)
+            value[0] |= ((uint32_t)c & 0xFF) << (8 * i);
+        else
             value[1] |= ((uint32_t)c & 0xFF) << (8 * (i - 4));
-        }
     }
 }
-
-void from_ascii(char *output, uint32_t *value)
+// Desempaqueta 2 × uint32_t en 8 chars
+static void from_block(char *output, const uint32_t *value)
 {
     for (int i = 0; i < 4; i++)
-    {
         output[i] = (value[0] >> (8 * i)) & 0xFF;
-    }
     for (int i = 0; i < 4; i++)
-    {
         output[i + 4] = (value[1] >> (8 * i)) & 0xFF;
-    }
-    output[8] = '\0'; // terminador nulo
+    output[8] = '\0';
 }
 
-void encrypt_message(char *input, uint32_t* key, uint32_t* encrypted)
+// Cifra todo el mensaje en bloques de 64 bits
+void encrypt_message(const char *input, const int nblocks, const uint32_t *key, uint32_t *encrypted)
 {
-    uint32_t value[2];
-    char block[BLOCK_SIZE + 1];
-    int i = 0, j = 0;
-
-    while (input[i] != '\0')
+    print_string("In encrypt\n");
+    for (int b = 0; b < nblocks; b++)
     {
-        // Copiar 8 chars al bloque
-        for (j = 0; j < BLOCK_SIZE; j++)
-        {
-            if (input[i] != '\0'){
-                block[j] = input[i];
-                i++;
-            }
-            else
-                block[j] = '\0'; // padding simple
-        }
-        block[BLOCK_SIZE] = '\0';
-
-        // Convert from string to uint32_t[2]
-        to_ascii(block, value);
-
-        // Encriptar
-        tea_encrypt(value, key);
-
-        // Guardar resultado en "encrypted"
-        encrypted[i - BLOCK_SIZE] = value[0];
-        encrypted[i - BLOCK_SIZE + 1] = value[1];
-
-        //from_ascii(&encrypted[i - BLOCK_SIZE], value);
+        print_string("In block \n");
+        uint32_t block[2];
+        to_block(&input[b * BLOCK_SIZE], block);
+        tea_encrypt(block, key);
+        encrypted[b * 2] = block[0];
+        encrypted[b * 2 + 1] = block[1];
     }
-    encrypted[i] = '\0';
+}
+
+// Descifra bloques en texto
+int decrypt_message(const uint32_t *encrypted, int nblocks, const uint32_t *key, char *decrypted)
+{
+    for (int b = 0; b < nblocks; b++)
+    {
+        uint32_t block[2] = {encrypted[b * 2], encrypted[b * 2 + 1]};
+        tea_decrypt(block, key);
+        from_block(&decrypted[b * BLOCK_SIZE], block);
+    }
+    decrypted[nblocks * BLOCK_SIZE] = '\0';
+    return nblocks * BLOCK_SIZE;
+}
+
+void print_test(char *input, uint32_t *key)
+{
+    int len = get_message_length(input);
+    int nblocks = (len + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    uint32_t encrypted[MAX_BLOCKS * 2];
+    char decrypted[MAX_OUTPUT];
+
+    print_string(" -------------- BEGINING OF TEST -------------- \n");
+
+    print_string("Original message: ");
+    print_string(input);
+    print_char('\n');
+
+    print_string("Encrypted message: ");
+    encrypt_message(input, nblocks, key, encrypted);
+    print_hex(encrypted, nblocks);
+
+    decrypt_message(encrypted, nblocks, key, decrypted);
+    print_string("Decrypted message: ");
+    print_string(decrypted);
+    print_char('\n');
+
+    print_string(" -------------- END OF TEST -------------- \n");
+    print_char('\n');
 }
 
 int main()
 {
-    print_string("Testing tea_encrypt assembly function:\n");
+    /*print_string("Testing encryption for full 64 bits block:\n");
 
+    char input[] = "HOLA1234";
     uint32_t key[4] = {0x12345678, 0x9ABCDEF0, 0xFEDCBA98, 0x76543210};
-    char input[] = "Mensaje de prueba para TEA";
+    print_test(input, key);
 
-    // uint32_t key[4] = {0x12345678, 0x9ABCDEF0, 0xFEDCBA98, 0x76543210};
-    // char input[] = "HOLA1234";
-    
-    uint32_t encrypted_message[MAX_OUTPUT];
-    char decrypted_message[MAX_OUTPUT];
+    print_string("Testing encryption for incomplete 64 bits block:\n");
 
-    print_string("Original input: ");
-    print_string(input);
-    print_char('\n');
+    char input2[] = "TEC";
+    uint32_t key2[4] = {0x12345678, 0x9ABCDEF0, 0xFEDCBA98, 0x76543210};
+    print_test(input2, key2);*/
 
-    encrypt_message(input, key, encrypted_message);
+    print_string("Testing encryption for multiple 64 bits blocks:\n");
 
-    print_string("Encrypted text:\n");
-    for(int i = 0; i < 4; i++){
-        print_number(encrypted_message[i]);
-        print_char('\n');
-    }
-
-
+    char input3[] = "Mensaje de prueba para TEA";
+    uint32_t key3 = {0x12345678, 0x9ABCDEF0, 0xFEDCBA98, 0x76543210};
+    print_test(input3, key3);
 
     return 0;
 }

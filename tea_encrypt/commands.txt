@@ -7,6 +7,9 @@ Otro terminal:
 docker exec -it rvqemu /bin/bash
 cd tea_encrypt && gdb-multiarch tea.elf 
 
+EXECUTE ONLY:
+qemu-system-riscv32 -machine virt -nographic -bios none -kernel tea.elf
+
 target remote :1234
 break _start
 break main
