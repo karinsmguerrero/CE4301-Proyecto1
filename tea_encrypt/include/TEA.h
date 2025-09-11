@@ -13,6 +13,6 @@ void to_block(char *input, uint32_t *value);
 void from_block(char *output, uint32_t *value);
 
 void encrypt_message(char *input, int nblocks, uint32_t *key, uint32_t *encrypted);
-int decrypt_message(uint32_t *encrypted, int nblocks, uint32_t *key, char *decrypted);
+void decrypt_message(uint32_t *encrypted, int nblocks, uint32_t *key, char *decrypted);
 
 #endif

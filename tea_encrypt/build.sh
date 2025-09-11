@@ -12,7 +12,7 @@ riscv64-unknown-elf-gcc \
     -g3 \
     -gdwarf-4 \
     -c \
-    lib/main.c \
+    src/main.c \
     -o build/main.o
 
 if [ $? -ne 0 ]; then

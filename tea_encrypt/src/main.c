@@ -1,6 +1,7 @@
 #include "../include/TEA.h"
 
 // Simple implementation of basic functions since we're in bare-metal environment
+
 void print_char(char c)
 {
     // In a real bare-metal environment, this would write to UART
@@ -40,6 +41,8 @@ void print_number(uint32_t num)
     }
 }
 
+
+// Calculates length of string
 int get_message_length(char *message)
 {
     int i = 0;
@@ -52,6 +55,7 @@ int get_message_length(char *message)
     return i;
 }
 
+// Converts decimal number to hexadecimal array for printing
 void decToHex(uint32_t decimalNum)
 {
     char hexDigits[8]; // Array to store hexadecimal digits
@@ -88,6 +92,7 @@ void decToHex(uint32_t decimalNum)
     print_char(' ');
 }
 
+// Prints converted decimal to hexadecimal
 void print_hex(uint32_t *data, int nblocks)
 {
     for (int i = 0; i < nblocks * 2; i++)
@@ -99,19 +104,22 @@ void print_hex(uint32_t *data, int nblocks)
 
 // Converts string to 2 uint32_t arrays
 void to_block(char *input, uint32_t *value) {
+    // Padding for incomplete blocks
     value[0] = 0; value[1] = 0;
     for (int i = 0; i < 8; i++) {
         char c = input[i];
         if (c == '\0') break;
+        // Convert character to integer and shifts bits to correct position in word
         if (i < 4)
             value[0] |= ((uint32_t)c & 0xFF) << (8 * i);
         else
             value[1] |= ((uint32_t)c & 0xFF) << (8 * (i - 4));
     }
 }
-// Converts uint32_t arrays to string
+// Converts 2 uint32_t arrays to string
 void from_block(char *output, uint32_t *value)
 {
+    // Converts integer back to character and shifts character into correct position
     for (int i = 0; i < 4; i++)
         output[i] = (value[0] >> (8 * i)) & 0xFF;
     for (int i = 0; i < 4; i++)
@@ -119,34 +127,42 @@ void from_block(char *output, uint32_t *value)
     output[8] = '\0';
 }
 
-// Encrypts message into 64 bits 
+// Encrypts message, as 64 bits blocks
 void encrypt_message(char *input, int nblocks, uint32_t *key, uint32_t *encrypted)
 {
     for (int b = 0; b < nblocks; b++)
     {
         uint32_t block[2];
+        // Prepares arrays from string for encryption
         to_block(&input[b * BLOCK_SIZE], block);
+        // ASM function to encrypt 
         tea_encrypt(block, key);
+        // Stores result in encryption array
         encrypted[b * 2] = block[0];
         encrypted[b * 2 + 1] = block[1];
     }
 }
 
-// Descifra bloques en texto
-int decrypt_message(uint32_t *encrypted, int nblocks, uint32_t *key, char *decrypted)
+// Decrypts 64 bits blocks and saves result as string
+void decrypt_message(uint32_t *encrypted, int nblocks, uint32_t *key, char *decrypted)
 {
     for (int b = 0; b < nblocks; b++)
     {
+        // Prepares arrays for decryption
         uint32_t block[2] = {encrypted[b * 2], encrypted[b * 2 + 1]};
+        // ASM function to decrypt message
         tea_decrypt(block, key);
+        // Converts from int array to string and stores result in decryption array
         from_block(&decrypted[b * BLOCK_SIZE], block);
     }
+    // Add end character to string
     decrypted[nblocks * BLOCK_SIZE] = '\0';
-    return nblocks * BLOCK_SIZE;
 }
 
+// Performs encryption and decryption of message, prints results
 void print_test(char *input, uint32_t *key)
 {
+    // Calculate length of message and number of 64 bit block to encrypt
     int len = get_message_length(input);
     int nblocks = (len + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
