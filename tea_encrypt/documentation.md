@@ -9,38 +9,12 @@ Para el entorno de desarrollo se utiliza un contenedor de Docker con QEMU y GBD 
 
 ---
 
-## 1. Estructura del proyecto
+## 1. Archivos de configuración
 
-```
-.
-├── Dockerfile
-├── run.sh
-├── examples/           # Ejemplos de código
-│   ├── asm-only/      # Ejemplo de ensamblador puro
-│   │   ├── test.s
-│   │   ├── linker.ld
-│   │   ├── build.sh
-│   │   └── run-qemu.sh
-│   └── c-asm/         # Ejemplo de C + ensamblador
-│       ├── example.c
-│       ├── math_asm.s
-│       ├── linker.ld
-│       ├── build.sh
-│       └── run-qemu.sh
-└── README.md
-```
-
-- `examples/` contiene diferentes ejemplos de programas RISC-V
 - `Dockerfile` define la imagen que incluye el emulador QEMU y el toolchain RISC-V
 - `run.sh` automatiza la construcción de la imagen y la ejecución del contenedor
-
-## Ejemplos disponibles
-
-### Ensamblador puro (`examples/asm-only/`)
-Programa simple escrito completamente en ensamblador que calcula la suma del 1 al 10.
-
-### C + Ensamblador (`examples/c-asm/`)
-Programa en C que llama funciones escritas en ensamblador, demostrando la integración entre ambos lenguajes. Este ejemplo incluye un archivo de inicio (startup.s) que inicializa la pila y llama a la función main de C, ya que los programas C necesitan un entorno de ejecución básico antes de ejecutar el código principal.
+- `tea_encrypt/build.sh` automatiza la compilación de la aplicación
+- `tea_encrypt/run-qemu.sh` inicia qemu con el ejecutable de la aplicación y prepara la depuración
 
 ---
 
@@ -52,15 +26,12 @@ chmod +x run.sh
 ./run.sh
 ```
 
-### Paso 2: Elegir y compilar un ejemplo
+### Paso 2: Compilar aplicación
 ```bash
 # Para el ejemplo de ensamblador puro
-cd /home/rvqemu-dev/workspace/examples/asm-only
+cd /home/rvqemu-dev/workspace/tea_encrypt
 ./build.sh
 
-# Para el ejemplo de C + ensamblador
-cd /home/rvqemu-dev/workspace/examples/c-asm
-./build.sh
 ```
 
 ### Paso 3: Ejecutar con QEMU y depurar
@@ -70,8 +41,8 @@ cd /home/rvqemu-dev/workspace/examples/c-asm
 
 # En otra terminal: conectar GDB
 docker exec -it rvqemu /bin/bash
-cd /home/rvqemu-dev/workspace/examples/[ejemplo-elegido]
-gdb-multiarch [archivo-elf]
+cd /home/rvqemu-dev/workspace/tea_encrypt
+gdb-multiarch tea.elf
 ```
 
 ---
@@ -82,7 +53,7 @@ gdb-multiarch [archivo-elf]
 El script `run.sh` construye la imagen `rvqemu` y crea un contenedor interactivo que monta el directorio del proyecto en `/home/rvqemu-dev/workspace`.
 
 ### Compilación
-Cada ejemplo incluye un script `build.sh` que maneja la compilación automáticamente.
+Se incluye un script `build.sh` que maneja la compilación automáticamente.
 
 **Opciones de compilación utilizadas**:
 - `-march=rv32im`: arquitectura RISC-V 32 bits con extensiones I y M
@@ -98,6 +69,8 @@ Cada ejemplo incluye un script `build.sh` que maneja la compilación automática
 ```gdb
 target remote :1234    # Conectar al servidor GDB
 break _start           # Punto de ruptura al inicio
+break tea_encrypt      # Función para encriptar mensaje
+break tea_decrypt      # Función para desencriptar mensaje
 continue               # Continuar ejecución
 layout asm             # Vista de ensamblador
 layout regs            # Vista de registros
